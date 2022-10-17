@@ -9,8 +9,14 @@ import UIKit
 import RealmSwift
 import UserNotifications
 
-class ViewController: UIViewController,UITableViewDelegate,UITableViewDataSource {
+class ViewController: UIViewController,UITableViewDelegate,UITableViewDataSource,UISearchBarDelegate {
     @IBOutlet weak var tableView: UITableView!
+    
+    @IBOutlet weak var searchBar: UISearchBar!
+    
+    
+    
+    var taskList: Results<Task>?
     
     // Realmインスタンスを取得する
     let realm = try! Realm()
@@ -26,6 +32,10 @@ class ViewController: UIViewController,UITableViewDelegate,UITableViewDataSource
         tableView.fillerRowHeight = UITableView.automaticDimension
         tableView.delegate = self
         tableView.dataSource = self
+        searchBar.delegate = self
+        //検索バーの用途を周知するため、未入力時に仮表示
+        searchBar.placeholder = "カテゴリを入力して検索"
+        
     }
     
     //データの数を(=セルの数)を返すメソッド
@@ -114,6 +124,28 @@ class ViewController: UIViewController,UITableViewDelegate,UITableViewDataSource
         tableView.reloadData()
     }
     
+    //検索バー内にて入力完了後、呼ばれる
+    func searchBarSearchButtonClicked(_ searchBar: UISearchBar) {
+        searchBar.endEditing(true)
+        
+        let searchText = searchBar.text
+        
+        //検索バーへの入力内容と作成タスクが(前方)一致しているか確認
+        let result = realm.objects(Task.self).filter("category BEGINSWITH '\(searchText ?? "カテゴリで検索")'")
+        
+        //検索結果をカウント
+        let count = result.count
+        
+        //検索結果が０の時は全タスクを表示、そうでない時は該当タスクを表示
+        if (count == 0) {
+                taskArray = realm.objects(Task.self)
+            } else {
+                taskArray = result
+            }
+        
+        //タスク一覧表示を更新
+        tableView.reloadData()
+    }
 
 }
 

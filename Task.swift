@@ -20,6 +20,9 @@ class Task: Object {
     //日時
     @objc dynamic var date = Date()
     
+    //カテゴリ(文字列検索に使用)
+    @objc dynamic var category = ""
+    
     //idをプライマリーキーとして設定
     override static func primaryKey() -> String? {
         return "id"
